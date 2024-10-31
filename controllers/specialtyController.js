@@ -1,5 +1,6 @@
 const resp = require('../utils/responses');
 const { Specialty} = require('../models');
+const { Op } = require('sequelize');
 // const authenticateToken = require('../middlewares/authenticateToken');
 
 const createSpecialty = async (req, res) => {
@@ -24,6 +25,7 @@ const createSpecialty = async (req, res) => {
   
     } catch (error) {
       console.log(error);
+      console.error(error);
       return resp.makeResponsesError(res, error.message || 'An error occurred');
     }
   }
@@ -72,30 +74,40 @@ const getSpecialty = async (req, res) => {
 };
 
 const updateSpecialty = async (req, res) => {
-  try {
-    const { name, description } = req.body;
-    const specialtyId = req.params.id;
 
-    const updatedSpecialty = await Specialty.update(
-      { name, 
-        description
-      },
-      {
-        where: {
-          id: specialtyId,
-          deletedAt: null
-        }
+  try {  
+
+    const id = req.params.id;
+
+    const specialty = await Specialty.findOne({
+      where: {
+        id: id,
+        deletedAt: null
       }
-    );
+    });
 
-    resp.makeResponsesOkData(res, updatedSpecialty, "Success");
+    if (!specialty) {
+
+      return resp.makeResponsesError(res, `Specialty not found or inactive`, 'SNotFound')
+
+    } else {
+
+    const data = req.body;
+
+    const saveSpecialty = await Specialty.update(data, {
+      where: { id: req.params.id }
+    });
+
+    return resp.makeResponsesOkData(res, saveSpecialty, 'SpecialtyUpdated')
+
+    }
 
   } catch (error) {
-    console.log(error);
-    resp.makeResponsesError(res, error);
-  }
-};
+    
+    return resp.makeResponsesError(res, error, 'UnexpectedError')
 
+  }
+}
 
 const deleteSpecialty = async (req, res) => {
   try {
@@ -119,11 +131,37 @@ const deleteSpecialty = async (req, res) => {
   }
 };
 
+const getAllDeletedSpecialties = async (req, res) => {
+  try {
+    console.log('Fetching all deleted specialties'); // Log the action
+
+    const specialties = await Specialty.findAll({
+      where: {
+        deletedAt: {
+          [Op.ne]: null // Fetch specialties that are marked as deleted
+        }
+      },
+      order: [['deletedAt', 'DESC']]
+    });
+
+    if (specialties.length === 0) {
+      return resp.makeResponsesError(res, 'Not found', 'SNotFound');
+    }
+
+    resp.makeResponsesOkData(res, specialties, 'Success');
+
+  } catch (error) {
+    console.error('Error fetching deleted specialties:', error); // Log the error for debugging
+    resp.makeResponsesError(res, error, 'UnexpectedError');
+  }
+};
+
 
 module.exports = {
   createSpecialty,
   getAllSpecialties,
   getSpecialty,
   updateSpecialty,
-  deleteSpecialty
+  deleteSpecialty,
+  getAllDeletedSpecialties
 };

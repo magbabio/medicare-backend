@@ -1,12 +1,17 @@
 const express = require('express');
 const routes = require('./routes');
 const cors = require('cors'); // Importa cors aquí
-
-// require('dotenv').config();
+require('dotenv').config();
 
 const app = express(); // Declara app aquí
 
-app.use(cors({ origin: 'http://localhost:8001' }));
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 app.use(express.json());
 app.use("/api", routes);
 
