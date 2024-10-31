@@ -56,40 +56,40 @@ const createDoctor = async (req, res) => {
   }
 };
 
-const getAllSpecialties = async (req, res) => {
+const getAllDoctors = async (req, res) => {
   try {
-    const specialties = await Specialty.findAll({
+    const doctors = await Doctor.findAll({
       where: {
         deletedAt: null
       },
       order: [['updatedAt']]
     });
 
-    resp.makeResponsesOkData(res, specialties, 'Success')
+    resp.makeResponsesOkData(res, doctors, 'Success')
 
   } catch (error) {
     resp.makeResponsesError(res, error, 'UnexpectedError')
   }
 };
 
-const getSpecialty = async (req, res) => {
+const getDoctor = async (req, res) => {
   try {
     const { id } = req.params;  // Extrae el id de los parámetros de la ruta
 
-    const specialty = await Specialty.findOne({
+    const doctor = await Doctor.findOne({
       where: {
         id: id,            // Busca por el id que se pasa en la ruta
         deletedAt: null    // Solo busca registros que no hayan sido "borrados" (si tienes soft delete)
       }
     });
 
-    if (!specialty) {
+    if (!doctor) {
       // Si no se encuentra la especialidad, responde con un 404
-      return res.status(404).json({ message: 'Specialty not found' });
+      return res.status(404).json({ message: 'Doctor not found' });
     }
 
     // Si se encuentra, responde con los datos
-    resp.makeResponsesOkData(res, specialty, 'Success');
+    resp.makeResponsesOkData(res, doctor, 'Success');
 
   } catch (error) {
     // Manejo de errores
@@ -99,32 +99,32 @@ const getSpecialty = async (req, res) => {
   }
 };
 
-const updateSpecialty = async (req, res) => {
+const updateDoctor = async (req, res) => {
 
   try {  
 
     const id = req.params.id;
 
-    const specialty = await Specialty.findOne({
+    const doctor = await Doctor.findOne({
       where: {
         id: id,
         deletedAt: null
       }
     });
 
-    if (!specialty) {
+    if (!doctor) {
 
-      return resp.makeResponsesError(res, `Specialty not found or inactive`, 'SNotFound')
+      return resp.makeResponsesError(res, `Doctor not found or inactive`, 'SNotFound')
 
     } else {
 
     const data = req.body;
 
-    const saveSpecialty = await Specialty.update(data, {
+    const saveDoctor = await Doctor.update(data, {
       where: { id: req.params.id }
     });
 
-    return resp.makeResponsesOkData(res, saveSpecialty, 'SpecialtyUpdated')
+    return resp.makeResponsesOkData(res, saveDoctor, 'SUpdated')
 
     }
 
@@ -135,21 +135,21 @@ const updateSpecialty = async (req, res) => {
   }
 }
 
-const deleteSpecialty = async (req, res) => {
+const deleteDoctor = async (req, res) => {
   try {
-    const specialtyId = req.params.id;
+    const doctorId = req.params.id;
 
-    const deletedSpecialty = await Specialty.update(
+    const deletedDoctor = await Doctor.update(
       { deletedAt: new Date() },
       {
         where: {
-          id: specialtyId,
+          id: doctorId,
           deletedAt: null
         }
       }
     );
 
-    resp.makeResponsesOkData(res, deletedSpecialty, "PDeleted");
+    resp.makeResponsesOkData(res, deletedDoctor, "PDeleted");
 
   } catch (error) {
     console.log(error);
@@ -157,11 +157,9 @@ const deleteSpecialty = async (req, res) => {
   }
 };
 
-const getAllDeletedSpecialties = async (req, res) => {
+const getAllDeletedDoctors = async (req, res) => {
   try {
-    console.log('Fetching all deleted specialties'); // Log the action
-
-    const specialties = await Specialty.findAll({
+    const doctors = await Doctor.findAll({
       where: {
         deletedAt: {
           [Op.ne]: null // Fetch specialties that are marked as deleted
@@ -170,24 +168,55 @@ const getAllDeletedSpecialties = async (req, res) => {
       order: [['deletedAt', 'DESC']]
     });
 
-    if (specialties.length === 0) {
+    if (doctors.length === 0) {
       return resp.makeResponsesError(res, 'Not found', 'SNotFound');
     }
 
-    resp.makeResponsesOkData(res, specialties, 'Success');
+    resp.makeResponsesOkData(res, doctors, 'Success');
 
   } catch (error) {
-    console.error('Error fetching deleted specialties:', error); // Log the error for debugging
     resp.makeResponsesError(res, error, 'UnexpectedError');
   }
 };
 
+const activateDoctor = async (req, res) => {
+
+  try {
+
+    const id = req.params.id;
+
+    const doctor = await Doctor.findOne({
+      where: {
+        deletedAt: {
+          [Op.ne]: null 
+        }
+      },
+    });
+
+    if (!doctor) {
+      return resp.makeResponsesError(res, `Doctor not found or active`, 'SNotFound')
+    }
+
+    const saveDoctor = await doctor.update({
+      status: true,
+      where: { id }
+    });
+
+    resp.makeResponsesOkData(res, saveDoctor, 'UReactivated')
+
+  } catch (error) {
+    resp.makeResponsesError(res, error, 'UnexpectedError')
+
+  }
+}
+
 
 module.exports = {
   createDoctor,
-  getAllSpecialties,
-  getSpecialty,
-  updateSpecialty,
-  deleteSpecialty,
-  getAllDeletedSpecialties
+  getAllDoctors,
+  getDoctor,
+  updateDoctor,
+  deleteDoctor,
+  getAllDeletedDoctors,
+  activateDoctor
 };

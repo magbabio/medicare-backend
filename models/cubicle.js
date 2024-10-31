@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Cubicle.init({
     number: DataTypes.INTEGER,
-    descripcion: DataTypes.STRING,
+    description: DataTypes.STRING,
     deletedAt: DataTypes.DATE
   }, {
     sequelize,

@@ -156,6 +156,37 @@ const getAllDeletedSpecialties = async (req, res) => {
   }
 };
 
+// const activateSpecialty = async (req, res) => {
+
+//   try {
+
+//     const id = req.params.id;
+
+//     const doctor = await Specialty.findOne({
+//       where: {
+//         deletedAt: {
+//           [Op.ne]: null 
+//         }
+//       },
+//     });
+
+//     if (!doctor) {
+//       return resp.makeResponsesError(res, `Doctor not found or active`, 'SNotFound')
+//     }
+
+//     const saveDoctor = await doctor.update({
+//       status: true,
+//       where: { id }
+//     });
+
+//     resp.makeResponsesOkData(res, saveDoctor, 'UReactivated')
+
+//   } catch (error) {
+//     resp.makeResponsesError(res, error, 'UnexpectedError')
+
+//   }
+// }
+
 
 module.exports = {
   createSpecialty,
