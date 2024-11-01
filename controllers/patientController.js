@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const resp = require('../utils/responses');
 const { sequelize, Patient, User } = require('../models');
 const { Op } = require('sequelize');
+const ROLES = require('../constants/roles');
 
 const { Sequelize } = require('sequelize');
 
@@ -23,6 +24,7 @@ const createPatient = async (req, res) => {
       {
         email,
         password: hashedPassword,
+        role: ROLES.PATIENT
       },
       { transaction }
     );

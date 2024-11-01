@@ -72,7 +72,6 @@ const getCubicle = async (req, res) => {
 };
 
 const updateCubicle = async (req, res) => {
-
   try {  
 
     const id = req.params.id;
@@ -92,11 +91,9 @@ const updateCubicle = async (req, res) => {
 
     const data = req.body;
 
-    const saveCubicle = await Cubicle.update(data, {
-      where: { id: req.params.id }
-    });
+    await cubicle.update(data);
 
-    return resp.makeResponsesOkData(res, saveCubicle, 'CubicleUpdated')
+    return resp.makeResponsesOkData(res, cubicle, 'SpecialtyUpdated')
 
     }
 
@@ -111,18 +108,23 @@ const deleteCubicle = async (req, res) => {
   try {
     const cubicleId = req.params.id;
 
-    const deletedCubicle = await Cubicle.update(
-      { deletedAt: new Date() },
-      {
-        where: {
-          id: cubicleId,
-          deletedAt: null
-        }
+    const cubicle = await Cubicle.findOne({
+      where: {
+        id: cubicleId
       }
-    );
+    });
 
-    resp.makeResponsesOkData(res, deletedCubicle, "PDeleted");
+    if (!cubicle) {
 
+      return resp.makeResponsesError(res, `Cubicle not found or inactive`, 'SNotFound')
+
+    } else {
+
+    await cubicle.destroy();
+
+    resp.makeResponsesOkData(res, cubicle, "CDeleted");
+
+    }
   } catch (error) {
     resp.makeResponsesError(res, error);
   }
@@ -133,14 +135,15 @@ const getAllDeletedCubicles = async (req, res) => {
     const cubicles = await Cubicle.findAll({
       where: {
         deletedAt: {
-          [Op.ne]: null 
+          [Op.ne]: null
         }
       },
+      paranoid: false,
       order: [['deletedAt', 'DESC']]
     });
 
     if (cubicles.length === 0) {
-      return resp.makeResponsesError(res, 'Not found', 'SNotFound');
+      return resp.makeResponsesError(res, 'Not found', 'CNotFound');
     }
 
     resp.makeResponsesOkData(res, cubicles, 'Success');
@@ -150,6 +153,35 @@ const getAllDeletedCubicles = async (req, res) => {
   }
 };
 
+const activateCubicle = async (req, res) => {
+
+  try {
+
+    const id = req.params.id;
+
+    const cubicle = await Cubicle.findOne({
+      where: {
+        id: id,
+        deletedAt: {
+          [Op.ne]: null
+        }
+      },
+      paranoid: false,
+    });
+
+    if (!cubicle) {
+      return resp.makeResponsesError(res, `Cubicle not found or active`, 'SNotFound')
+    }
+
+    await cubicle.restore()
+
+    resp.makeResponsesOkData(res, cubicle, 'UReactivated')
+
+  } catch (error) {
+    resp.makeResponsesError(res, error, 'UnexpectedError')
+
+  }
+}
 
 module.exports = {
   createCubicle,
@@ -157,5 +189,6 @@ module.exports = {
   getCubicle,
   updateCubicle,
   deleteCubicle,
-  getAllDeletedCubicles
+  getAllDeletedCubicles,
+  activateCubicle
 };
