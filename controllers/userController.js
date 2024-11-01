@@ -39,10 +39,26 @@ const login = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      where: {
+        deletedAt: null
+      },
+      order: [['updatedAt']]
+    });
+
+    resp.makeResponsesOkData(res, users, 'Success')
+
+  } catch (error) {
+    resp.makeResponsesError(res, error, 'UnexpectedError')
+  }
+};
+
 module.exports = {
   //createUser,
   login,
-  // getAllUsers,
+  getAllUsers,
   // setFavorite,
   // getFavoritesByUser,
   // setFollow,

@@ -24,8 +24,6 @@ const createSpecialty = async (req, res) => {
       }
   
     } catch (error) {
-      console.log(error);
-      console.error(error);
       return resp.makeResponsesError(res, error.message || 'An error occurred');
     }
   }
@@ -48,28 +46,23 @@ const getAllSpecialties = async (req, res) => {
 
 const getSpecialty = async (req, res) => {
   try {
-    const { id } = req.params;  // Extrae el id de los parámetros de la ruta
+    const { id } = req.params;  
 
     const specialty = await Specialty.findOne({
       where: {
-        id: id,            // Busca por el id que se pasa en la ruta
-        deletedAt: null    // Solo busca registros que no hayan sido "borrados" (si tienes soft delete)
+        id: id,            
+        deletedAt: null    
       }
     });
 
     if (!specialty) {
-      // Si no se encuentra la especialidad, responde con un 404
       return res.status(404).json({ message: 'Specialty not found' });
     }
 
-    // Si se encuentra, responde con los datos
     resp.makeResponsesOkData(res, specialty, 'Success');
 
   } catch (error) {
-    // Manejo de errores
     resp.makeResponsesError(res, error, 'UnexpectedError');
-    // O también:
-    // res.status(500).json({ message: 'UnexpectedError', error: error.message });
   }
 };
 

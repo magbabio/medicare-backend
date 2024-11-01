@@ -2,12 +2,13 @@ const bcrypt = require('bcryptjs');
 const resp = require('../utils/responses');
 const { sequelize, Doctor, User } = require('../models');
 const { Op } = require('sequelize');
+const ROLES = require('../constants/roles');
 // const authenticateToken = require('../middlewares/authenticateToken');
 
 const { Sequelize } = require('sequelize');
 
 const createDoctor = async (req, res) => {
-  const transaction = await sequelize.transaction(); // Usa la instancia sequelize en lugar de Sequelize
+  const transaction = await sequelize.transaction();
 
   try {
     const { specialtyId, cedula, firstName, lastName, phone, gender, birthday, perfil, email, password } = req.body;
@@ -24,7 +25,7 @@ const createDoctor = async (req, res) => {
       {
         email,
         password: hashedPassword,
-        // role: constante de doctor, crear carpeta de constante, archivo roles (constante para los roles)
+        role: ROLES.DOCTOR, 
       },
       { transaction }
     );
@@ -48,6 +49,7 @@ const createDoctor = async (req, res) => {
     return resp.makeResponsesOkData(res, newDoctor, 'SCreated');
 
   } catch (error) {
+    console.log(error);
     await transaction.rollback();
     return resp.makeResponsesError(res, error.message || 'An error occurred');
   }
@@ -71,28 +73,23 @@ const getAllDoctors = async (req, res) => {
 
 const getDoctor = async (req, res) => {
   try {
-    const { id } = req.params;  // Extrae el id de los parámetros de la ruta
+    const { id } = req.params;  
 
     const doctor = await Doctor.findOne({
       where: {
-        id: id,            // Busca por el id que se pasa en la ruta
-        deletedAt: null    // Solo busca registros que no hayan sido "borrados" (si tienes soft delete)
+        id: id,            
+        deletedAt: null    
       }
     });
 
     if (!doctor) {
-      // Si no se encuentra la especialidad, responde con un 404
       return res.status(404).json({ message: 'Doctor not found' });
     }
 
-    // Si se encuentra, responde con los datos
     resp.makeResponsesOkData(res, doctor, 'Success');
 
   } catch (error) {
-    // Manejo de errores
     resp.makeResponsesError(res, error, 'UnexpectedError');
-    // O también:
-    // res.status(500).json({ message: 'UnexpectedError', error: error.message });
   }
 };
 
@@ -111,17 +108,15 @@ const updateDoctor = async (req, res) => {
 
     if (!doctor) {
 
-      return resp.makeResponsesError(res, `Doctor not found or inactive`, 'SNotFound')
+      return resp.makeResponsesError(res, `Doctor not found or inactive`, 'DNotFound')
 
     } else {
 
     const data = req.body;
 
-    const saveDoctor = await Doctor.update(data, {
-      where: { id: req.params.id }
-    });
+    await doctor.update(data);
 
-    return resp.makeResponsesOkData(res, saveDoctor, 'SUpdated')
+    return resp.makeResponsesOkData(res, doctor, 'DUpdated')
 
     }
 
@@ -136,20 +131,24 @@ const deleteDoctor = async (req, res) => {
   try {
     const doctorId = req.params.id;
 
-    const deletedDoctor = await Doctor.update(
-      { deletedAt: new Date() },
-      {
-        where: {
-          id: doctorId,
-          deletedAt: null
-        }
+    const doctor = await Doctor.findOne({
+      where: {
+        id: doctorId
       }
-    );
+    });
 
-    resp.makeResponsesOkData(res, deletedDoctor, "PDeleted");
+    if (!doctor) {
 
+      return resp.makeResponsesError(res, `Doctor not found or inactive`, 'DNotFound')
+
+    } else {
+
+    await doctor.destroy();
+
+    resp.makeResponsesOkData(res, doctor, "DDeleted");
+
+    }
   } catch (error) {
-    console.log(error);
     resp.makeResponsesError(res, error);
   }
 };
@@ -159,9 +158,10 @@ const getAllDeletedDoctors = async (req, res) => {
     const doctors = await Doctor.findAll({
       where: {
         deletedAt: {
-          [Op.ne]: null // Fetch specialties that are marked as deleted
+          [Op.ne]: null
         }
       },
+      paranoid: false,
       order: [['deletedAt', 'DESC']]
     });
 
@@ -177,29 +177,27 @@ const getAllDeletedDoctors = async (req, res) => {
 };
 
 const activateDoctor = async (req, res) => {
-
   try {
 
     const id = req.params.id;
 
     const doctor = await Doctor.findOne({
       where: {
+        id: id,
         deletedAt: {
-          [Op.ne]: null 
+          [Op.ne]: null
         }
       },
+      paranoid: false,
     });
 
     if (!doctor) {
       return resp.makeResponsesError(res, `Doctor not found or active`, 'SNotFound')
     }
 
-    const saveDoctor = await doctor.update({
-      status: true,
-      where: { id }
-    });
+    await doctor.restore()
 
-    resp.makeResponsesOkData(res, saveDoctor, 'UReactivated')
+    resp.makeResponsesOkData(res, doctor, 'UReactivated')
 
   } catch (error) {
     resp.makeResponsesError(res, error, 'UnexpectedError')

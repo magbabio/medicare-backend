@@ -3,7 +3,7 @@ const userController = require('../controllers/userController');
 
 // router.post('/create', userController.createUser);
 router.post('/login', userController.login);
-// router.get('/getAll', userController.getAllUsers);
+router.get('/getAll', userController.getAllUsers);
 // router.get('/', userController.getUserLogged);
 // router.get('/profile', userController.getUserProfileImage);
 // router.put('/update/profile', userController.updateUserImage);
