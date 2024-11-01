@@ -19,7 +19,7 @@ const login = async (req, res) => {
       return resp.makeResponsesError(res, 'Incorrect credentials', 'ULoginError1');
     }
 
-    const { id, password: hashedPassword } = valUser; 
+    const { id, password: hashedPassword, role } = valUser; 
 
     const valPass = await bcrypt.compare(password, hashedPassword);
 
@@ -28,7 +28,7 @@ const login = async (req, res) => {
     }
 
     const secret = process.env.SECRET_KEY;
-    const token = jwt.sign({ id }, secret, { expiresIn: '1w' }); // agregar el rol
+    const token = jwt.sign({ id, role }, secret, { expiresIn: '1w' });
 
     const user = { id, token };
     resp.makeResponsesOkData(res, user, 'Success');
