@@ -13,7 +13,13 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       specialtyId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Specialties',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
       cedula: {
         type: Sequelize.STRING

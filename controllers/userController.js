@@ -19,9 +19,8 @@ const login = async (req, res) => {
       return resp.makeResponsesError(res, 'Incorrect credentials', 'ULoginError1');
     }
 
-    const { id, password: hashedPassword } = valUser; // Obtén la contraseña hasheada de la base de datos
+    const { id, password: hashedPassword } = valUser; 
 
-    // Compara la contraseña ingresada con la contraseña hasheada
     const valPass = await bcrypt.compare(password, hashedPassword);
 
     if (!valPass) {
@@ -29,7 +28,7 @@ const login = async (req, res) => {
     }
 
     const secret = process.env.SECRET_KEY;
-    const token = jwt.sign({ id }, secret, { expiresIn: '1w' });
+    const token = jwt.sign({ id }, secret, { expiresIn: '1w' }); // agregar el rol
 
     const user = { id, token };
     resp.makeResponsesOkData(res, user, 'Success');

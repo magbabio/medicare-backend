@@ -16,9 +16,9 @@ module.exports = (sequelize, DataTypes) => {
   Specialty.init({
     name: DataTypes.STRING,
     description: DataTypes.STRING,
-    deletedAt: DataTypes.DATE
   }, {
     sequelize,
+    paranoid: true,
     modelName: 'Specialty',
   });
   return Specialty;

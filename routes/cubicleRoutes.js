@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const cubicleController = require('../controllers/cubicleController');
 
+//router.get('/cubicles', authRequired(constant.admin), cubicleController.getAllCubicles);
 router.get('/cubicles', cubicleController.getAllCubicles);
 router.get('/cubicles/:id', cubicleController.getCubicle);
 router.post('/create', cubicleController.createCubicle);

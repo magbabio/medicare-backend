@@ -94,11 +94,9 @@ const updateSpecialty = async (req, res) => {
 
     const data = req.body;
 
-    const saveSpecialty = await Specialty.update(data, {
-      where: { id: req.params.id }
-    });
+    await specialty.update(data);
 
-    return resp.makeResponsesOkData(res, saveSpecialty, 'SpecialtyUpdated')
+    return resp.makeResponsesOkData(res, specialty, 'SpecialtyUpdated')
 
     }
 
@@ -113,34 +111,37 @@ const deleteSpecialty = async (req, res) => {
   try {
     const specialtyId = req.params.id;
 
-    const deletedSpecialty = await Specialty.update(
-      { deletedAt: new Date() },
-      {
-        where: {
-          id: specialtyId,
-          deletedAt: null
-        }
+    const specialty = await Specialty.findOne({
+      where: {
+        id: specialtyId
       }
-    );
+    });
 
-    resp.makeResponsesOkData(res, deletedSpecialty, "PDeleted");
+    if (!specialty) {
 
+      return resp.makeResponsesError(res, `Specialty not found or inactive`, 'SNotFound')
+
+    } else {
+
+    await specialty.destroy();
+
+    resp.makeResponsesOkData(res, specialty, "PDeleted");
+
+    }
   } catch (error) {
-    console.log(error);
     resp.makeResponsesError(res, error);
   }
 };
 
 const getAllDeletedSpecialties = async (req, res) => {
   try {
-    console.log('Fetching all deleted specialties'); // Log the action
-
     const specialties = await Specialty.findAll({
       where: {
         deletedAt: {
-          [Op.ne]: null // Fetch specialties that are marked as deleted
+          [Op.ne]: null
         }
       },
+      paranoid: false,
       order: [['deletedAt', 'DESC']]
     });
 
@@ -151,41 +152,39 @@ const getAllDeletedSpecialties = async (req, res) => {
     resp.makeResponsesOkData(res, specialties, 'Success');
 
   } catch (error) {
-    console.error('Error fetching deleted specialties:', error); // Log the error for debugging
     resp.makeResponsesError(res, error, 'UnexpectedError');
   }
 };
 
-// const activateSpecialty = async (req, res) => {
+const activateSpecialty = async (req, res) => {
 
-//   try {
+  try {
 
-//     const id = req.params.id;
+    const id = req.params.id;
 
-//     const doctor = await Specialty.findOne({
-//       where: {
-//         deletedAt: {
-//           [Op.ne]: null 
-//         }
-//       },
-//     });
+    const specialty = await Specialty.findOne({
+      where: {
+        id: id,
+        deletedAt: {
+          [Op.ne]: null
+        }
+      },
+      paranoid: false,
+    });
 
-//     if (!doctor) {
-//       return resp.makeResponsesError(res, `Doctor not found or active`, 'SNotFound')
-//     }
+    if (!specialty) {
+      return resp.makeResponsesError(res, `Specialty not found or active`, 'SNotFound')
+    }
 
-//     const saveDoctor = await doctor.update({
-//       status: true,
-//       where: { id }
-//     });
+    await specialty.restore()
 
-//     resp.makeResponsesOkData(res, saveDoctor, 'UReactivated')
+    resp.makeResponsesOkData(res, specialty, 'UReactivated')
 
-//   } catch (error) {
-//     resp.makeResponsesError(res, error, 'UnexpectedError')
+  } catch (error) {
+    resp.makeResponsesError(res, error, 'UnexpectedError')
 
-//   }
-// }
+  }
+}
 
 
 module.exports = {
@@ -194,5 +193,6 @@ module.exports = {
   getSpecialty,
   updateSpecialty,
   deleteSpecialty,
-  getAllDeletedSpecialties
+  getAllDeletedSpecialties,
+  activateSpecialty
 };

@@ -12,26 +12,23 @@ const createDoctor = async (req, res) => {
   try {
     const { specialtyId, cedula, firstName, lastName, phone, gender, birthday, perfil, email, password } = req.body;
 
-    // Verificar si ya existe un doctor con la misma cédula
     const existingDoctor = await Doctor.findOne({ where: { cedula, deletedAt: null } });
     if (existingDoctor) {
       return resp.makeResponsesError(res, 'SFound');
     }
 
-    // Encriptar la contraseña usando bcryptjs
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Crear el usuario en el modelo Usuario
     const newUser = await User.create(
       {
         email,
         password: hashedPassword,
+        // role: constante de doctor, crear carpeta de constante, archivo roles (constante para los roles)
       },
       { transaction }
     );
 
-    // Crear el doctor en el modelo Doctor, asignando el ID del usuario
     const newDoctor = await Doctor.create(
       {
         userId: newUser.id,
