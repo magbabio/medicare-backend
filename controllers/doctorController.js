@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const resp = require('../utils/responses');
-const { sequelize, Doctor, User } = require('../models');
+const { sequelize, Doctor, User, Specialty } = require('../models');
 const { Op } = require('sequelize');
 const ROLES = require('../constants/roles');
 // const authenticateToken = require('../middlewares/authenticateToken');
@@ -60,12 +60,17 @@ const getAllDoctors = async (req, res) => {
       where: {
         deletedAt: null
       },
+      include: {
+        model: Specialty, 
+        attributes: ['name'], 
+      },
       order: [['updatedAt']]
     });
 
     resp.makeResponsesOkData(res, doctors, 'Success')
 
   } catch (error) {
+    console.log(error);
     resp.makeResponsesError(res, error, 'UnexpectedError')
   }
 };
