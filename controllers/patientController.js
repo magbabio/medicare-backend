@@ -57,6 +57,10 @@ const getAllPatients = async (req, res) => {
       where: {
         deletedAt: null
       },
+      include: {
+        model: User, 
+        attributes: ['email'], 
+      },
       order: [['updatedAt']]
     });
 
