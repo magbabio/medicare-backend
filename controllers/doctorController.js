@@ -11,7 +11,7 @@ const createDoctor = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
-    const { specialtyId, cedula, firstName, lastName, phone, gender, birthday, perfil, email, password } = req.body;
+    const { specialtyId, cedula, firstName, lastName, phone, gender, perfil, email, password } = req.body;
 
     const existingDoctor = await Doctor.findOne({ where: { cedula, deletedAt: null } });
     if (existingDoctor) {
@@ -39,14 +39,13 @@ const createDoctor = async (req, res) => {
         lastName,
         phone,
         gender,
-        birthday,
         perfil
       },
       { transaction }
     );
 
     await transaction.commit();
-    return resp.makeResponsesOkData(res, newDoctor, 'SCreated');
+    return resp.makeResponsesOkData(res, newDoctor, 'DCreated');
 
   } catch (error) {
     await transaction.rollback();
@@ -83,7 +82,11 @@ const getDoctor = async (req, res) => {
       where: {
         id: id,            
         deletedAt: null    
-      }
+      },
+      include: {
+        model: User, 
+        attributes: ['email'], 
+      },
     });
 
     if (!doctor) {
@@ -164,6 +167,10 @@ const getAllDeletedDoctors = async (req, res) => {
         deletedAt: {
           [Op.ne]: null
         }
+      },
+      include: {
+        model: Specialty, 
+        attributes: ['name'], 
       },
       paranoid: false,
       order: [['deletedAt', 'DESC']]

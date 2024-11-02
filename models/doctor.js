@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Doctor.belongsTo(models.Specialty, { foreignKey: 'specialtyId' });
+      Doctor.belongsTo(models.User, { foreignKey: 'userId' });
     }
   }
   Doctor.init({
@@ -21,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
     lastName: DataTypes.STRING,
     phone: DataTypes.STRING,
     gender: DataTypes.STRING,
-    birthday: DataTypes.DATE,
     perfil: DataTypes.STRING,
     deletedAt: DataTypes.DATE
   }, {
