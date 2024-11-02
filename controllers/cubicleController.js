@@ -18,7 +18,7 @@ const createCubicle = async (req, res) => {
         deletedAt
       });
 
-      return resp.makeResponsesOkData(res, newCubicle, 'SCreated');
+      return resp.makeResponsesOkData(res, newCubicle, 'CCreated');
     }
 
   } catch (error) {
@@ -93,7 +93,7 @@ const updateCubicle = async (req, res) => {
 
     await cubicle.update(data);
 
-    return resp.makeResponsesOkData(res, cubicle, 'SpecialtyUpdated')
+    return resp.makeResponsesOkData(res, cubicle, 'CUpdated')
 
     }
 
@@ -175,7 +175,7 @@ const activateCubicle = async (req, res) => {
 
     await cubicle.restore()
 
-    resp.makeResponsesOkData(res, cubicle, 'UReactivated')
+    resp.makeResponsesOkData(res, cubicle, 'CActivated')
 
   } catch (error) {
     resp.makeResponsesError(res, error, 'UnexpectedError')

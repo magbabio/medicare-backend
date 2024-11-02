@@ -28,6 +28,19 @@
     "Forbidden": "Request rejected. Forbidden",
 
 
-    "SCreated": "Specialty created",
-    "SFound": "Specialty found"
+    "SCreated": "Especialidad creada",
+    "SUpdated": "Especialidad actualizado",
+    "SDeleted": "Especialidad eliminado",
+    "SActivated": "Especialidad activado",
+    "SFound": "Ya está registrado",
+
+    "CCreated": "Cubículo creado",
+    "CUpdated": "Cubículo actualizado",
+    "CDeleted": "Cubículo eliminado",
+    "CActivated": "Cubículo activado",
+
+    "DFound": "Doctor ya está registrado",
+    "DUpdated": "Doctor actualizado",
+    "DDeleted": "Doctor eliminado",
+    "DActivated": "Doctor activado"
   }

@@ -89,7 +89,7 @@ const updateSpecialty = async (req, res) => {
 
     await specialty.update(data);
 
-    return resp.makeResponsesOkData(res, specialty, 'SpecialtyUpdated')
+    return resp.makeResponsesOkData(res, specialty, 'SUpdated')
 
     }
 
@@ -118,7 +118,7 @@ const deleteSpecialty = async (req, res) => {
 
     await specialty.destroy();
 
-    resp.makeResponsesOkData(res, specialty, "PDeleted");
+    resp.makeResponsesOkData(res, specialty, "SDeleted");
 
     }
   } catch (error) {
@@ -171,7 +171,7 @@ const activateSpecialty = async (req, res) => {
 
     await specialty.restore()
 
-    resp.makeResponsesOkData(res, specialty, 'UReactivated')
+    resp.makeResponsesOkData(res, specialty, 'SActivated')
 
   } catch (error) {
     resp.makeResponsesError(res, error, 'UnexpectedError')

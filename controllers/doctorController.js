@@ -15,7 +15,7 @@ const createDoctor = async (req, res) => {
 
     const existingDoctor = await Doctor.findOne({ where: { cedula, deletedAt: null } });
     if (existingDoctor) {
-      return resp.makeResponsesError(res, 'SFound');
+      return resp.makeResponsesError(res, 'DFound');
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -48,6 +48,7 @@ const createDoctor = async (req, res) => {
     return resp.makeResponsesOkData(res, newDoctor, 'DCreated');
 
   } catch (error) {
+    console.log(error);
     await transaction.rollback();
     return resp.makeResponsesError(res, error.message || 'An error occurred');
   }
@@ -208,7 +209,7 @@ const activateDoctor = async (req, res) => {
 
     await doctor.restore()
 
-    resp.makeResponsesOkData(res, doctor, 'UReactivated')
+    resp.makeResponsesOkData(res, doctor, 'DActivated')
 
   } catch (error) {
     resp.makeResponsesError(res, error, 'UnexpectedError')
