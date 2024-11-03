@@ -1,23 +1,29 @@
 const express = require('express');
 const routes = require('./routes');
-const cors = require('cors'); // Importa cors aquí
+const cors = require('cors');
 require('dotenv').config();
 
-const app = express(); // Declara app aquí
+const app = express();
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  next();
-});
+const corsOptions = {
+  origin: 'http://localhost:3000', // Permitir el origen de tu frontend
+  methods: 'GET, POST, PUT, DELETE', // Métodos permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'], // Cabeceras permitidas
+  credentials: true // Permite el uso de cookies
+};
+
+app.use(cors(corsOptions));
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/api", routes);
 
 app.get("/api", (_, res) =>
   res.send(`Connected!`)
 )
+
+app.options('*', cors(corsOptions)); // habilitar preflight para todas las rutas
+
 
 const port = 4000;
 
