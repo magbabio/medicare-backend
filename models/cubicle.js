@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       Cubicle.hasMany(models.Schedule, {
         foreignKey: 'cubiclesId'
       });
+      Cubicle.hasMany(models.Appointment, {
+        foreignKey: 'cubicleId'
+      });
     }
   }
   Cubicle.init({

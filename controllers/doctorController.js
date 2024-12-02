@@ -266,88 +266,6 @@ const searchDoctors = async (req, res) => {
   }
 };
 
-const getAllDoctorsBySpecialty = async (req, res) => {
-  try {
-    const { specialtyId } = req.query;
-
-    const doctors = await Doctor.findAll({
-      where: {
-        deletedAt: null
-      },
-      include: {
-        model: Specialty,
-        where: specialtyId ? { id: specialtyId } : {},
-        attributes: ['name']
-      },
-      order: [['updatedAt']]
-    });
-
-    resp.makeResponsesOkData(res, doctors, 'Success');
-
-  } catch (error) {
-    console.log(error);
-    resp.makeResponsesError(res, error, 'UnexpectedError');
-  }
-};
-
-const getAvailableDaysForDoctor = async (req, res) => {
-  try {
-    const { doctorId, month, year } = req.query;
-
-    // Validar que el doctor existe
-    const doctor = await Doctor.findOne({ where: { id: doctorId, deletedAt: null } });
-    if (!doctor) {
-      return resp.makeResponsesError(res, 'Doctor no encontrado');
-    }
-
-    // Obtener todos los horarios asignados al doctor
-    const schedules = await Schedule.findAll({
-      where: { doctorId },
-      attributes: ['timeSlot', 'cubiclesId'],
-    });
-
-    if (!schedules.length) {
-      return resp.makeResponsesOkData(res, [], 'El doctor no tiene horarios asignados');
-    }
-
-    // Generar los días del mes
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0); // Último día del mes
-    const daysInMonth = Array.from({ length: endDate.getDate() }, (_, i) => new Date(year, month - 1, i + 1));
-
-    // Verificar disponibilidad por día
-    const availableDays = await Promise.all(
-      daysInMonth.map(async (day) => {
-        const isAvailable = await Promise.all(
-          schedules.map(async (schedule) => {
-            const appointments = await Appointment.findAll({
-              where: {
-                doctorId,
-                cubicleId: schedule.cubiclesId,
-                date: day,
-              },
-            });
-
-            return appointments.length < schedule.timeSlot.length; // Si hay espacio disponible en ese cubículo y horario
-          })
-        );
-
-        return isAvailable.some((available) => available) ? day : null; // Si al menos un horario está disponible
-      })
-    );
-
-    // Filtrar los días disponibles (no null)
-    const filteredDays = availableDays.filter(Boolean);
-
-    return resp.makeResponsesOkData(res, filteredDays, 'Días disponibles obtenidos');
-  } catch (error) {
-    console.log(error);
-    return resp.makeResponsesError(res, error.message || 'An error occurred');
-  }
-};
-
-
-
 module.exports = {
   createDoctor,
   getAllDoctors,
@@ -357,6 +275,4 @@ module.exports = {
   getAllDeletedDoctors,
   activateDoctor,
   searchDoctors,
-  getAllDoctorsBySpecialty,
-  getAvailableDaysForDoctor
 };

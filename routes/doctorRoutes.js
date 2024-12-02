@@ -9,8 +9,5 @@ router.delete('/delete/:id', doctorController.deleteDoctor);
 router.get('/deletedDoctors', doctorController.getAllDeletedDoctors);
 router.put('/activate/:id', doctorController.activateDoctor);
 router.get('/search', doctorController.searchDoctors);
-router.get('/doctorsBySpecialty', doctorController.getAllDoctorsBySpecialty);
-router.get('/availableDays', doctorController.getAvailableDaysForDoctor);
-
 
 module.exports = router;
