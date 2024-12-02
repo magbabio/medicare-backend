@@ -46,6 +46,7 @@ const createPatient = async (req, res) => {
     return resp.makeResponsesOkData(res, newPatient, 'SCreated');
 
   } catch (error) {
+    console.log(error);
     await transaction.rollback();
     return resp.makeResponsesError(res, error.message || 'An error occurred');
   }

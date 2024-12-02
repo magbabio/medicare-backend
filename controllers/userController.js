@@ -26,7 +26,9 @@ const login = async (req, res) => {
     }
 
     const secret = process.env.SECRET_KEY;
-    const token = jwt.sign({ id, role }, secret, { expiresIn: '1w' });
+
+    // aca era 1w pero lo cambie a 1h intentando arreglar el error del token expired en el front
+    const token = jwt.sign({ id, role }, secret, { expiresIn: '1h' });
 
     const user = { id, token };
     resp.makeResponsesOkData(res, user, 'Success');

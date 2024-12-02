@@ -9,5 +9,7 @@ router.put('/update/:id', cubicleController.updateCubicle);
 router.delete('/delete/:id', cubicleController.deleteCubicle);
 router.get('/deletedCubicles', cubicleController.getAllDeletedCubicles);
 router.put('/activate/:id', cubicleController.activateCubicle);
+router.post('/assign', cubicleController.assignDoctorToCubicle);
+router.get('/schedule/:cubiclesId', cubicleController.getCubicleSchedule);
 
 module.exports = router;

@@ -10,13 +10,25 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       doctorId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Doctors',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
       cubiclesId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Cubicles',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
-      schedule: {
-        type: Sequelize.STRING
+      timeSlot: {
+        type: Sequelize.TIME
       },
       deletedAt: {
         type: Sequelize.DATE
