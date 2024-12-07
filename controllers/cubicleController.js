@@ -189,56 +189,45 @@ const assignDoctorToCubicle = async (req, res) => {
   try {
     const { cubiclesId, doctorId, timeSlot } = req.body;
 
-    console.log(cubiclesId,doctorId,timeSlot);
-
-    // Validar si el timeSlot está dentro del rango permitido
-
     if (!timeSlots.includes(timeSlot)) {
-      return resp.makeResponsesError(res, 'Horario inválido. Use un bloque de tiempo permitido.');
+      return resp.makeResponsesError(res, 'InvalidSchedule');
     }
 
-    // Verificar que el cubículo existe
     const cubicle = await Cubicle.findOne({ where: { id: cubiclesId, deletedAt: null } });
     if (!cubicle) {
-      return resp.makeResponsesError(res, 'Cubículo no encontrado');
+      return resp.makeResponsesError(res, 'CNotFound');
     }
 
-    // Verificar que el doctor existe
     const doctor = await Doctor.findOne({ where: { id: doctorId, deletedAt: null } });
     if (!doctor) {
-      return resp.makeResponsesError(res, 'Doctor no encontrado');
+      return resp.makeResponsesError(res, 'DNotFound');
     }
 
-    // Verificar si el doctor tiene un conflicto de horario
     const doctorConflict = await Schedule.findOne({
       where: { doctorId, timeSlot },
     });
     if (doctorConflict) {
-      return resp.makeResponsesError(res, 'El doctor ya está asignado para este horario');
+      return resp.makeResponsesError(res, 'SlotTaken');
     }
 
-    // Verificar si el cubículo ya tiene asignado un doctor en ese horario
     const existingSchedule = await Schedule.findOne({
       where: { cubiclesId, timeSlot },
     });
 
     if (existingSchedule) {
-      // Actualizar si ya existe un horario en ese cubículo
       existingSchedule.doctorId = doctorId;
       await existingSchedule.save();
-      return resp.makeResponsesOkData(res, existingSchedule, 'Horario actualizado');
+      return resp.makeResponsesOkData(res, existingSchedule, 'ScheduleUpdated');
     }
 
-    // Crear un nuevo horario si no existe
     const newSchedule = await Schedule.create({
       cubiclesId,
       doctorId,
       timeSlot,
     });
 
-    return resp.makeResponsesOkData(res, newSchedule, 'Horario creado');
+    return resp.makeResponsesOkData(res, newSchedule, 'ScheduleCreated');
   } catch (error) {
-    console.log('errrrrrrrrrror',error);
     return resp.makeResponsesError(res, error.message || 'An error occurred');
   }
 };
@@ -247,27 +236,24 @@ const getCubicleSchedule = async (req, res) => {
   try {
     const { cubiclesId } = req.params;
 
-    // Verificar que el cubículo existe
     const cubicle = await Cubicle.findOne({ where: { id: cubiclesId, deletedAt: null } });
     if (!cubicle) {
       return resp.makeResponsesError(res, 'Cubículo no encontrado');
     }
 
-    // Consultar los horarios y doctores asignados para el cubículo
     const schedules = await Schedule.findAll({
       where: { cubiclesId },
       include: [
         {
           model: Doctor,
-          attributes: ['id', 'cedula', 'firstName', 'lastName'], // Incluye ID, cédula, firstName y lastName del doctor
+          attributes: ['id', 'cedula', 'firstName', 'lastName'], 
         },
       ],
     });
 
-    // Crear un mapa para emparejar horarios con doctores
     const scheduleMap = {};
     timeSlots.forEach(slot => {
-      scheduleMap[slot] = null; // Inicialmente todos los horarios están disponibles
+      scheduleMap[slot] = null; 
     });
 
     if (schedules && schedules.length > 0) {
@@ -285,13 +271,12 @@ const getCubicleSchedule = async (req, res) => {
       });
     }
 
-    // Formatear la respuesta para el frontend
     const formattedSchedule = timeSlots.map(slot => ({
-      time: formatTime(slot), // Ej: '08:00:00' -> '8am'
+      time: formatTime(slot), 
       doctor: scheduleMap[slot]
         ? `${scheduleMap[slot].firstName} ${scheduleMap[slot].lastName}`
         : 'Disponible',
-      doctorId: scheduleMap[slot]?.id || null, // Si está disponible, el ID será null
+      doctorId: scheduleMap[slot]?.id || null, 
     }));
 
     return resp.makeResponsesOkData(res, formattedSchedule, 'Horarios obtenidos');
@@ -301,11 +286,10 @@ const getCubicleSchedule = async (req, res) => {
   }
 };
 
-// Helper para formatear la hora
 const formatTime = (time) => {
   const [hour, minute] = time.split(':');
   const amPm = hour >= 12 ? 'pm' : 'am';
-  const formattedHour = hour % 12 || 12; // Convierte 24 horas a formato de 12 horas
+  const formattedHour = hour % 12 || 12; 
   return `${formattedHour}${amPm}`;
 };
 

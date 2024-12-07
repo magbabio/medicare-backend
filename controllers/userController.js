@@ -34,7 +34,7 @@ const login = async (req, res) => {
     resp.makeResponsesOkData(res, user, 'Success');
 
   } catch (error) {
-    console.log(error);
+    console.log('error del backend',error);
     resp.makeResponsesError(res, 'Unexpected error', 'UnexpectedError');
   }
 };

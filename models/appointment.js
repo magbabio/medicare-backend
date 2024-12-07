@@ -19,8 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     doctorId: DataTypes.INTEGER,
     patientId: DataTypes.INTEGER,
     cubicleId: DataTypes.INTEGER,
-    date: DataTypes.DATE,
-    time: DataTypes.TIME,
+    date: DataTypes.DATE, // buscar si existe date only
+    time: DataTypes.TIME, // numero entero
     status: DataTypes.INTEGER,
     apptReason: DataTypes.STRING,
     cancellatationReason: DataTypes.STRING,

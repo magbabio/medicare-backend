@@ -1,7 +1,23 @@
 const resp = require('../utils/responses');
-const { Appointment, Schedule, Doctor, Patient, Cubicle } = require('../models');
+const { Appointment, Schedule, Doctor, Patient, Cubicle, Specialty } = require('../models');
 const { Op } = require('sequelize');
 const timeSlots = require('../constants/timeSlots');
+
+const getSpecialties = async (req, res) => {
+  try {
+    const specialties = await Specialty.findAll({
+      where: {
+        deletedAt: null
+      },
+      order: [['updatedAt']]
+    });
+
+    resp.makeResponsesOkData(res, specialties, 'Success')
+
+  } catch (error) {
+    resp.makeResponsesError(res, error, 'UnexpectedError')
+  }
+};
 
 const getAllDoctorsBySpecialty = async (req, res) => {
   try {
@@ -33,7 +49,7 @@ const getAvailableDaysForDoctor = async (req, res) => {
 
     const doctor = await Doctor.findOne({ where: { id: doctorId, deletedAt: null } });
     if (!doctor) {
-      return resp.makeResponsesError(res, 'Doctor no encontrado');
+      return resp.makeResponsesError(res, 'DNotFound');
     }
 
     const schedules = await Schedule.findAll({
@@ -42,7 +58,7 @@ const getAvailableDaysForDoctor = async (req, res) => {
     });
 
     if (!schedules.length) {
-      return resp.makeResponsesOkData(res, [], 'El doctor no tiene horarios asignados');
+      return resp.makeResponsesOkData(res, [], 'NoScheduleAssigned');
     }
 
     const startDate = new Date(year, month - 1, 1);
@@ -71,7 +87,7 @@ const getAvailableDaysForDoctor = async (req, res) => {
 
     const filteredDays = availableDays.filter(Boolean);
 
-    return resp.makeResponsesOkData(res, filteredDays, 'Días disponibles obtenidos');
+    return resp.makeResponsesOkData(res, filteredDays, 'DaysFound');
   } catch (error) {
     console.log(error);
     return resp.makeResponsesError(res, error.message || 'An error occurred');
@@ -82,29 +98,25 @@ const getAvailableTimeSlotsForDay = async (req, res) => {
   try {
     const { doctorId, date } = req.query;
 
-    // Validar que el doctor existe
     const doctor = await Doctor.findOne({ where: { id: doctorId, deletedAt: null } });
     if (!doctor) {
-      return resp.makeResponsesError(res, 'Doctor no encontrado');
+      return resp.makeResponsesError(res, 'DNotFound');
     }
 
-    // Convertir la fecha proporcionada
     const day = new Date(date);
-    day.setHours(0, 0, 0, 0);  // Asegurar que la fecha tenga hora 00:00 para comparaciones exactas
+    day.setHours(0, 0, 0, 0);  
 
-    // Verificar citas ya agendadas para el doctor en esa fecha
     const appointments = await Appointment.findAll({
       where: { doctorId, date: day },
       attributes: ['time'],
-    });
+    }); // hacer lo mismo con schedule
 
-    // Obtener los horarios ocupados
     const occupiedSlots = appointments.map(appointment => appointment.time);
 
-    // Filtrar los horarios disponibles usando la constante global timeSlots
+    // user schedule para traer los bloques de horario de ese doctor
     const availableSlots = timeSlots.filter(slot => !occupiedSlots.includes(slot));
 
-    return resp.makeResponsesOkData(res, availableSlots, 'Horarios disponibles obtenidos');
+    return resp.makeResponsesOkData(res, availableSlots, 'SlotsFound');
   } catch (error) {
     console.error(error);
     return resp.makeResponsesError(res, error.message || 'An error occurred');
@@ -117,22 +129,23 @@ const bookAppointment = async (req, res) => {
 
     const doctor = await Doctor.findOne({ where: { id: doctorId, deletedAt: null } });
     if (!doctor) {
-      return resp.makeResponsesError(res, 'Doctor no encontrado');
+      return resp.makeResponsesError(res, 'DNotFound');
     }
 
     const patient = await Patient.findOne({ where: { id: patientId, deletedAt: null } });
     if (!patient) {
-      return resp.makeResponsesError(res, 'Paciente no encontrado');
+      return resp.makeResponsesError(res, 'PNotFound');
     }
 
     const day = new Date(date);
-    day.setHours(0, 0, 0, 0);  // Asegurar que la fecha tenga hora 00:00 para comparaciones exactas
+    day.setHours(0, 0, 0, 0);  
 
+    //no deberia ser necesario con la correccion 
     const doctorSchedule = await Schedule.findOne({
       where: { doctorId, timeSlot },
     });
     if (!doctorSchedule) {
-      return resp.makeResponsesError(res, 'El doctor no tiene un horario disponible en ese momento');
+      return resp.makeResponsesError(res, 'NoSchedule');
     }
 
     const existingAppointment = await Appointment.findOne({
@@ -141,13 +154,13 @@ const bookAppointment = async (req, res) => {
     if (existingAppointment) {
       return resp.makeResponsesError(
         res,
-        'Este horario ya está ocupado. Por favor, elija otro.'
+        'ScheduleTaken'
       );
     }
 
     const cubicleId = doctorSchedule.cubiclesId;
     if (!cubicleId) {
-      return resp.makeResponsesError(res, 'No hay cubículo asignado para este horario');
+      return resp.makeResponsesError(res, 'NoCubicle');
     }
 
     const newAppointment = await Appointment.create({
@@ -156,11 +169,11 @@ const bookAppointment = async (req, res) => {
       cubicleId,  // Usar el cubículo asignado al doctor para el horario
       date: day,  // Usar la fecha normalizada
       time: timeSlot,
-      status: 1, // Estado activo
+      status: 1, // crear constantes para los estados de la cita
       apptReason,
     });
 
-    return resp.makeResponsesOkData(res, newAppointment, 'Cita agendada exitosamente');
+    return resp.makeResponsesOkData(res, newAppointment, 'ACreated');
   } catch (error) {
     console.log(error);
     return resp.makeResponsesError(res, error.message || 'Ocurrió un error');
@@ -169,15 +182,15 @@ const bookAppointment = async (req, res) => {
 
 const getPendingAppointmentsForDoctor = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; // req.query 
   
     const doctor = await Doctor.findOne({ where: { id, deletedAt: null } });
     if (!doctor) {
-      return resp.makeResponsesError(res, 'Doctor no encontrado');
+      return resp.makeResponsesError(res, 'DNotFound');
     }
 
     const appointments = await Appointment.findAll({
-      where: { id, status: 1 }, 
+      where: { doctorId: id, status: 1 }, 
       include: [
         {
           model: Patient, 
@@ -192,7 +205,7 @@ const getPendingAppointmentsForDoctor = async (req, res) => {
     });
 
     if (!appointments.length) {
-      return resp.makeResponsesOkData(res, [], 'No hay citas pendientes para este doctor');
+      return resp.makeResponsesOkData(res, [], 'NoAppts');
     }
 
     const formattedAppointments = appointments.map(appointment => ({
@@ -212,7 +225,7 @@ const getPendingAppointmentsForDoctor = async (req, res) => {
       },
     }));
 
-    return resp.makeResponsesOkData(res, formattedAppointments, 'Citas pendientes obtenidas');
+    return resp.makeResponsesOkData(res, formattedAppointments, 'ApptsFound');
   } catch (error) {
     console.error(error);
     return resp.makeResponsesError(res, error.message || 'An error occurred');
@@ -220,6 +233,7 @@ const getPendingAppointmentsForDoctor = async (req, res) => {
 };
   
   module.exports = {
+    getSpecialties,
     getAllDoctorsBySpecialty,
     getAvailableDaysForDoctor,
     getPendingAppointmentsForDoctor,

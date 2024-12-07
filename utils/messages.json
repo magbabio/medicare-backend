@@ -38,9 +38,31 @@
     "CUpdated": "Cubículo actualizado",
     "CDeleted": "Cubículo eliminado",
     "CActivated": "Cubículo activado",
+    "CNotFound": "Cubículo no encontrado",
 
     "DFound": "Doctor ya está registrado",
     "DUpdated": "Doctor actualizado",
     "DDeleted": "Doctor eliminado",
-    "DActivated": "Doctor activado"
+    "DActivated": "Doctor activado",
+    "DNotFound": "Doctor no encontrado",
+
+    "PNotFound": "Paciente no encontrado",
+
+    "Invalid Schedule": "Horario inválido. Use un bloque de tiempo permitido.",
+    "ScheduleUpdated":"Horario actualizado",
+    "ScheduleCreated":"Horario creado",
+
+    "SlotTaken": "El doctor ya está asignado para este horario",
+    "NoScheduleAssigned": "El doctor no tiene horarios asignado",
+    "NoSchedule": "El doctor no tiene un horario disponible en ese momento",
+    "ScheduleTaken": "Este horario ya está ocupado. Por favor, elija otro",
+
+    "DaysFound": "Días disponibles obtenidos",
+    "SlotsFound": "Horarios disponibles obtenidos",
+
+    "NoCubicle": "No hay cubículo asignado para este horario",
+
+    "NoAppts": "No hay citas para este doctor",
+    "ApptsFound": "Citas pendientes obtenidas",
+    "ACreated": "Cita creada exitosamente"
   }
