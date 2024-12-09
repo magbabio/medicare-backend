@@ -19,5 +19,6 @@ router.post('/attendAppointment', appointmentController.attendAppointment);
 router.post('/cancelAppointment', appointmentController.cancelAppointment);
 
 router.get('/getTodayAppts', appointmentController.getTodayAppointmentsForDoctor)
+router.get('/getAppointmentById/:id', appointmentController.getAppointmentById);
 
 module.exports = router;

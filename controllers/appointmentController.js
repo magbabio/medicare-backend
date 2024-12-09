@@ -308,6 +308,7 @@ const getAppointmentsForDoctor = async (req, res) => {
   }
 };
 
+//visualizar citas de hoy
 const getTodayAppointmentsForDoctor = async (req, res) => {
   try {
     const { doctorId } = req.query;
@@ -347,6 +348,59 @@ const getTodayAppointmentsForDoctor = async (req, res) => {
     }));
 
     return resp.makeResponsesOkData(res, formattedAppointments, 'AppointmentsFound');
+  } catch (error) {
+    console.error(error);
+    return resp.makeResponsesError(res, error.message || 'An error occurred');
+  }
+};
+
+//visualizar datos de una cita
+const getAppointmentById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const appointment = await Appointment.findOne({
+      where: { id, deletedAt: null },
+      include: [
+        {
+          model: Doctor,
+          attributes: ['id', 'firstName', 'lastName', 'specialtyId'],
+          include: {
+            model: Specialty,
+            attributes: ['name'],
+          },
+        },
+        {
+          model: Patient,
+          attributes: ['firstName', 'lastName', 'gender', 'age'],
+        },
+      ],
+      attributes: ['id', 'apptReason', 'date', 'time'],
+    });
+
+    if (!appointment) {
+      return resp.makeResponsesError(res, 'AppointmentNotFound');
+    }
+
+    const formattedAppointment = {
+      id: appointment.id,
+      apptReason: appointment.apptReason,
+      date: appointment.date,
+      time: appointment.time,
+      doctor: {
+        id: appointment.Doctor.id,
+        fullName: `${appointment.Doctor.firstName} ${appointment.Doctor.lastName}`,
+        specialty: appointment.Doctor.Specialty.name,
+      },
+      patient: {
+        firstName: appointment.Patient.firstName,
+        lastName: appointment.Patient.lastName,
+        gender: appointment.Patient.gender,
+        age: appointment.Patient.age,
+      },
+    };
+
+    return resp.makeResponsesOkData(res, formattedAppointment, 'AppointmentFound');
   } catch (error) {
     console.error(error);
     return resp.makeResponsesError(res, error.message || 'An error occurred');
@@ -403,7 +457,6 @@ const rescheduleAppointmentByDoctor = async (req, res) => {
     return resp.makeResponsesError(res, error.message || 'Ocurrió un error al reagendar la cita');
   }
 };
-
 
 //Atender cita
 const attendAppointment = async (req, res) => {
@@ -483,6 +536,7 @@ const cancelAppointment = async (req, res) => {
 
     //métodos dl doctor
     getTodayAppointmentsForDoctor,
+    getAppointmentById,
     rescheduleAppointmentByDoctor,
     attendAppointment,
     cancelAppointment
