@@ -28,7 +28,7 @@ module.exports = {
         onDelete: 'SET NULL'
       },
       timeSlot: {
-        type: Sequelize.TIME
+        type: Sequelize.STRING
       },
       deletedAt: {
         type: Sequelize.DATE

@@ -40,7 +40,7 @@ module.exports = {
         type: Sequelize.DATE
       },
       time: {
-        type: Sequelize.TIME
+        type: Sequelize.STRING
       },
       status: {
         type: Sequelize.INTEGER
@@ -48,7 +48,7 @@ module.exports = {
       apptReason: {
         type: Sequelize.STRING
       },
-      cancellatationReason: {
+      cancellationReason: {
         type: Sequelize.STRING
       },
       results: {

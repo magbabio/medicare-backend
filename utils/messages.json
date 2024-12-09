@@ -64,5 +64,10 @@
 
     "NoAppts": "No hay citas para este doctor",
     "ApptsFound": "Citas pendientes obtenidas",
-    "ACreated": "Cita creada exitosamente"
+    "ACreated": "Cita creada exitosamente",
+
+    "AppointmentNotFound": "Cita no encontrada",
+    "AppointmentUpdated": "Cita actualizada",
+    "InvalidAppointmentStatus": "Estado de cita inválido",
+    "AppointmentCancelled": "Cita cancelada"
   }

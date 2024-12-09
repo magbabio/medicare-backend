@@ -272,7 +272,7 @@ const getCubicleSchedule = async (req, res) => {
     }
 
     const formattedSchedule = timeSlots.map(slot => ({
-      time: formatTime(slot), 
+      time: slot, // Directamente usamos el slot, ya no hay conversión.
       doctor: scheduleMap[slot]
         ? `${scheduleMap[slot].firstName} ${scheduleMap[slot].lastName}`
         : 'Disponible',
@@ -285,14 +285,6 @@ const getCubicleSchedule = async (req, res) => {
     return resp.makeResponsesError(res, error.message || 'An error occurred');
   }
 };
-
-const formatTime = (time) => {
-  const [hour, minute] = time.split(':');
-  const amPm = hour >= 12 ? 'pm' : 'am';
-  const formattedHour = hour % 12 || 12; 
-  return `${formattedHour}${amPm}`;
-};
-
 
 module.exports = {
   createCubicle,

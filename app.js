@@ -6,7 +6,7 @@ require('dotenv').config();
 const app = express();
 
 const corsOptions = {
-  origin: 'http://localhost:3000', // Permitir el origen de tu frontend
+  origin: 'http://localhost:8081', // Permitir el origen de tu frontend
   methods: 'GET, POST, PUT, DELETE', // Métodos permitidos
   allowedHeaders: ['Content-Type', 'Authorization'], // Cabeceras permitidas
   credentials: true // Permite el uso de cookies

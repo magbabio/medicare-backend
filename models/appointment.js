@@ -13,17 +13,20 @@ module.exports = (sequelize, DataTypes) => {
       Appointment.belongsTo(models.Doctor, { foreignKey: 'doctorId' });
       Appointment.belongsTo(models.Patient, { foreignKey: 'patientId' });
       Appointment.belongsTo(models.Cubicle, { foreignKey: 'cubicleId' });
+      Appointment.hasOne(models.Rating, {
+        foreignKey: 'appointmentId'
+      });
     }
   }
   Appointment.init({
     doctorId: DataTypes.INTEGER,
     patientId: DataTypes.INTEGER,
     cubicleId: DataTypes.INTEGER,
-    date: DataTypes.DATE, // buscar si existe date only
-    time: DataTypes.TIME, // numero entero
+    date: DataTypes.DATEONLY,
+    time: DataTypes.STRING, 
     status: DataTypes.INTEGER,
     apptReason: DataTypes.STRING,
-    cancellatationReason: DataTypes.STRING,
+    cancellationReason: DataTypes.STRING,
     results: DataTypes.STRING,
     deletedAt: DataTypes.DATE
   }, {

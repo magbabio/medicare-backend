@@ -1,0 +1,7 @@
+const APPOINTMENT_STATUS = {
+    PENDING: 1,
+    ATTENDED: 2,
+    CANCELLED: 3
+};
+
+module.exports = APPOINTMENT_STATUS;
