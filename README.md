@@ -1,8 +1,8 @@
-# 🏥 Medicare Backend: Appointment Management System API
+# Medicare Backend: Appointment Management System API
 
 This is the backend service for a full-stack medical appointment management platform, demonstrating robust handling of complex business logic, user authentication, and resource management.
 
-### Technical Features 
+### Features 
 
 This project proves proficiency in building a secure and consistent Full-Stack Node.js API:
 
@@ -28,7 +28,7 @@ This project proves proficiency in building a secure and consistent Full-Stack N
 This project was developed in 2024 and provided essential experience in handling complex business requirements. Moving forward, the key areas for professional improvement would be:
 
 1.  **Transition to TypeScript:** Implementing static typing would catch errors early and improve code maintainability and scalability.
-2.  **Architectural Refinement:** Adopting a framework like **NestJS** would impose a stricter architecture (like Dependency Injection and Services), centralizing and testing complex logic (e.g., `getAvailableDaysForDoctor`) more effectively.
+2.  **Architectural Refinement:** Adopting a framework like NestJS** would impose a stricter architecture (like Dependency Injection and Services), centralizing and testing complex logic (e.g., `getAvailableDaysForDoctor`) more effectively.
 3.  **Error Handling:** Implementing centralized error handling middleware instead of repeating `try...catch` blocks in every controller to follow DRY (Don't Repeat Yourself) principles.
 
 ### Associated Repositories
