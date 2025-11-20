@@ -7,7 +7,7 @@ This is the backend service for a full-stack medical appointment management plat
 This project proves proficiency in building a secure and consistent Full-Stack Node.js API:
 
 * **Complex Scheduling Logic:** Implements an advanced algorithm (`getAvailableDaysForDoctor`) to calculate dynamic availability, considering doctor schedules, assigned cubicles, and existing appointments.
-* **Secure Authentication (JWT):** Utilizes **`jsonwebtoken`** for sign-in and token creation (`login`) and **`bcryptjs`** for password hashing, ensuring secure user sessions.
+* **Secure Authentication (JWT) and Role-Based Access Control:** Utilizes **`jsonwebtoken`** for sign-in and token creation (`login`) and **`bcryptjs`** for password hashing, ensuring secure user sessions, combined with Role-Based Access Control (RBAC) to restrict sensitive routes and ensure proper authorization for users and admins.
 * **Atomic Transactions:** Implements Sequelize Transactions during user creation (e.g., creating `User` and `Doctor` simultaneously) to guarantee data integrity.
 * **Data Integrity & Consistency:** Extensive use of Soft Delete (`deletedAt` field and `restore()`) across all core entities (`Doctor`, `Cubicle`, `Specialty`), a critical practice for production systems.
 * **Database Management:** Demonstrates proficiency with Sequelize (ORM) including complex SQL Joins (via `include`) and dynamic `WHERE` clauses for filtering appointments by status or patient/doctor ID.
